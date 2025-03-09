@@ -13,7 +13,7 @@ class Magazine(models.Model):
 class Volume(models.Model):
     magazine = models.ForeignKey(Magazine, on_delete=models.CASCADE, related_name="volumes")
     title = models.CharField(max_length=255)
-    release_date = models.DateField()
+    release_date = models.DateField(auto_now=True)
     volume_cover_image = models.ImageField(upload_to='volumes/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

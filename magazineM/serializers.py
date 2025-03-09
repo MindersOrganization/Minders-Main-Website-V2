@@ -1,32 +1,39 @@
 from rest_framework import serializers
 from .models import Magazine, Volume, Article, Contributor, ArticleContributor
 
+
 class MagazineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Magazine
         fields = '__all__'
 
+
 class VolumeSerializer(serializers.ModelSerializer):
-    magazine = MagazineSerializer()
+    magazine = serializers.PrimaryKeyRelatedField(queryset=Magazine.objects.all(), write_only=True)
+
     class Meta:
         model = Volume
-        fields = '__all__'
+        fields = ['id', 'title', 'magazine']
 
 
 class ArticleSerializer(serializers.ModelSerializer):
-    volume = VolumeSerializer()
+    volume = serializers.PrimaryKeyRelatedField(queryset=Volume.objects.all(), write_only=True)
+
     class Meta:
         model = Article
-        fields = '__all__'
+        fields = ['id', 'title', 'content', 'volume']
+
 
 class ContributorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contributor
         fields = '__all__'
 
+
 class ArticleContributorSerializer(serializers.ModelSerializer):
-    article = ArticleSerializer()
-    contributor = ContributorSerializer()
+    article = serializers.PrimaryKeyRelatedField(queryset=Article.objects.all(), write_only=True)
+    contributor = serializers.PrimaryKeyRelatedField(queryset=Contributor.objects.all(), write_only=True)
+
     class Meta:
         model = ArticleContributor
-        fields = '__all__'
+        fields = ['id', 'article', 'contributor', 'role']
