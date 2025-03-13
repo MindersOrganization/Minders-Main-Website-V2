@@ -8,23 +8,19 @@ from .views import (
 )
 
 urlpatterns = [
-    # Magazine URLs
-    path('magazines/', MagazineListCreateView.as_view(), name='magazine-list-create'),
-    path('magazines/<int:pk>/', MagazineDetailView.as_view(), name='magazine-detail'),
-
-    # Volume URLs (Inside a Magazine)
+    # -------------------- Magazine --------------------
+    path('magazines/', MagazineListCreateView.as_view(), name='magazine-list-create'),  # List all or create a new one
+    path('magazines/<int:pk>/', MagazineDetailView.as_view(), name='magazine-detail'),  # Retrieve, update, or delete
+    # -------------------- Volume --------------------
     path('magazines/<int:magazine_id>/volumes/', VolumeListCreateView.as_view(), name='volume-list-create'),
     path('magazines/<int:magazine_id>/volumes/<int:pk>/', VolumeDetailView.as_view(), name='volume-detail'),
-
-    # Article URLs (Inside a Volume)
+    # -------------------- Article --------------------
     path('magazines/<int:magazine_id>/volumes/<int:volume_id>/articles/', ArticleListCreateView.as_view(), name='article-list-create'),
     path('magazines/<int:magazine_id>/volumes/<int:volume_id>/articles/<int:pk>/', ArticleDetailView.as_view(), name='article-detail'),
-
-    # Article Contributor URLs (Inside an Article)
+    # -------------------- Article Contributors --------------------
     path('magazines/<int:magazine_id>/volumes/<int:volume_id>/articles/<int:article_id>/contributors/', ArticleContributorListCreateView.as_view(), name='article-contributor-list-create'),
-    path('magazines/<int:magazine_id>/volumes/<int:volume_id>/article-contributors/<int:pk>/', ArticleContributorDetailView.as_view(), name='article-contributor-detail'),
-
-    # Contributor URLs
+    path('magazines/<int:magazine_id>/volumes/<int:volume_id>/articles/<int:article_id>/contributors/<int:pk>/', ArticleContributorDetailView.as_view(), name='article-contributor-detail'),
+    # -------------------- Contributors --------------------
     path('contributors/', ContributorListCreateView.as_view(), name='contributor-list-create'),
     path('contributors/<int:pk>/', ContributorDetailView.as_view(), name='contributor-detail'),
 ]

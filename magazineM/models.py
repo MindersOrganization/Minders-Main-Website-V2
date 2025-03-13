@@ -52,8 +52,10 @@ class Contributor(models.Model):
 
 class ArticleContributor(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name="contributors")
-    contributor = models.ForeignKey(Contributor, on_delete=models.CASCADE)
+    contributor = models.ForeignKey(Contributor, on_delete=models.CASCADE, related_name="article_contributions")
     role = models.CharField(max_length=50, choices=Contributor.ROLE_CHOICES)
 
     class Meta:
         unique_together = ('article', 'contributor')
+    def __str__(self):
+        return f"{self.contributor.name} ({self.role}) {self.article.title}"

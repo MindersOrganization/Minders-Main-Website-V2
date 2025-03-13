@@ -1,39 +1,81 @@
 from rest_framework import serializers
 from .models import Magazine, Volume, Article, Contributor, ArticleContributor
 
-
 class MagazineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Magazine
         fields = '__all__'
 
-
 class VolumeSerializer(serializers.ModelSerializer):
-    magazine = serializers.PrimaryKeyRelatedField(queryset=Magazine.objects.all(), write_only=True)
+    magazine = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Volume
         fields = ['id', 'title', 'magazine']
 
+    def create(self, validated_data):
+        magazine_id = self.context['magazine_id']
+        validated_data['magazine'] = Magazine.objects.get(pk=magazine_id)
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        magazine_id = self.context.get('magazine_id')
+        if magazine_id:
+            validated_data['magazine'] = Magazine.objects.get(pk=magazine_id)
+        return super().update(instance, validated_data)
 
 class ArticleSerializer(serializers.ModelSerializer):
-    volume = serializers.PrimaryKeyRelatedField(queryset=Volume.objects.all(), write_only=True)
+    volume = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Article
         fields = ['id', 'title', 'content', 'volume']
 
+    def create(self, validated_data):
+        volume_id = self.context['volume_id']
+        validated_data['volume'] = Volume.objects.get(pk=volume_id)
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        volume_id = self.context.get('volume_id')
+        if volume_id:
+            validated_data['volume'] = Volume.objects.get(pk=volume_id)
+        return super().update(instance, validated_data)
 
 class ContributorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contributor
         fields = '__all__'
 
-
 class ArticleContributorSerializer(serializers.ModelSerializer):
-    article = serializers.PrimaryKeyRelatedField(queryset=Article.objects.all(), write_only=True)
-    contributor = serializers.PrimaryKeyRelatedField(queryset=Contributor.objects.all(), write_only=True)
+    article_title = serializers.SerializerMethodField()
+    contributor_name = serializers.SerializerMethodField()
 
     class Meta:
         model = ArticleContributor
-        fields = ['id', 'article', 'contributor', 'role']
+        fields = ['id', 'article', 'article_title', 'contributor', 'contributor_name', 'role']
+        extra_kwargs = {
+            'article': {'read_only': True}
+        }
+    def get_article_title(self, obj):
+        return obj.article.title
+
+    def get_contributor_name(self, obj):
+        return obj.contributor.name
+
+    def create(self, validated_data):
+        article_id = self.context.get('article_id')
+        if not article_id:
+            raise serializers.ValidationError({"article": "Article ID is missing in the URL."})
+
+        contributor_id = self.initial_data.get('contributor')
+        if not contributor_id:
+            raise serializers.ValidationError({"contributor": "Contributor ID is required in the request body."})
+
+        article = Article.objects.get(pk=article_id)
+        contributor = Contributor.objects.get(pk=contributor_id)
+        validated_data['article'] = article
+        validated_data['contributor'] = contributor
+
+        return super().create(validated_data)
+
