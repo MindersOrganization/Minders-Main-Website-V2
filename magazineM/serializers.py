@@ -2,12 +2,18 @@ from rest_framework import serializers
 from .models import Magazine, Volume, Article, Contributor, ArticleContributor
 
 class MagazineSerializer(serializers.ModelSerializer):
+    """Serializer for Magazine model."""
+
     class Meta:
         model = Magazine
         fields = '__all__'
 
+
 class VolumeSerializer(serializers.ModelSerializer):
-    magazine = serializers.PrimaryKeyRelatedField(read_only=True)
+    """Serializer for Volume model."""
+    magazine = serializers.PrimaryKeyRelatedField(
+        read_only=True, help_text="The ID of the associated magazine."
+    )
 
     class Meta:
         model = Volume
@@ -24,8 +30,12 @@ class VolumeSerializer(serializers.ModelSerializer):
             validated_data['magazine'] = Magazine.objects.get(pk=magazine_id)
         return super().update(instance, validated_data)
 
+
 class ArticleSerializer(serializers.ModelSerializer):
-    volume = serializers.PrimaryKeyRelatedField(read_only=True)
+    """Serializer for Article model."""
+    volume = serializers.PrimaryKeyRelatedField(
+        read_only=True, help_text="The ID of the associated volume."
+    )
 
     class Meta:
         model = Article
@@ -42,14 +52,19 @@ class ArticleSerializer(serializers.ModelSerializer):
             validated_data['volume'] = Volume.objects.get(pk=volume_id)
         return super().update(instance, validated_data)
 
+
 class ContributorSerializer(serializers.ModelSerializer):
+    """Serializer for Contributor model."""
+
     class Meta:
         model = Contributor
         fields = '__all__'
 
+
 class ArticleContributorSerializer(serializers.ModelSerializer):
-    article_title = serializers.SerializerMethodField()
-    contributor_name = serializers.SerializerMethodField()
+    """Serializer for ArticleContributor model."""
+    article_title = serializers.SerializerMethodField(help_text="Title of the related article.")
+    contributor_name = serializers.SerializerMethodField(help_text="Name of the related contributor.")
 
     class Meta:
         model = ArticleContributor
@@ -57,6 +72,7 @@ class ArticleContributorSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'article': {'read_only': True}
         }
+
     def get_article_title(self, obj):
         return obj.article.title
 
@@ -78,4 +94,3 @@ class ArticleContributorSerializer(serializers.ModelSerializer):
         validated_data['contributor'] = contributor
 
         return super().create(validated_data)
-
